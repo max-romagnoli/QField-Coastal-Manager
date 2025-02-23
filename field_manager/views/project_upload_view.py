@@ -31,19 +31,16 @@ class ProjectUploadView(APIView):
     """
 
     def post(self, request, *args, **kwargs):
-        # 1) Parse the text part (metadata)
+        # Parse metadata
         meta_data_raw = request.data.get("json_data")
         meta_data = {}
         if meta_data_raw:
             try:
                 meta_data = json.loads(meta_data_raw)
             except json.JSONDecodeError:
-                pass  # or handle error
+                pass
 
-        # Debug / Log
-        print("Received metadata:", meta_data)
-
-        # 2) Process uploaded files (i.e., "file" field)
+        # Process uploaded files
         uploaded_files = request.FILES.getlist("file")
         if not uploaded_files:
             return Response(
@@ -53,11 +50,9 @@ class ProjectUploadView(APIView):
 
         saved_files = []
         for f in uploaded_files:
-            # Store file to default storage (MEDIA_ROOT or S3, etc.)
             saved_path = default_storage.save(f.name, f)
             saved_files.append(saved_path)
 
-        # 3) Return a JSON response
         return Response(
             {
                 "message": "Files uploaded successfully",

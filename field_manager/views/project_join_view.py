@@ -46,14 +46,14 @@ class ProjectJoinView(APIView):
             return Response({"error": "No project_id provided."},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        # 1) Try to get the Project
+        # Try to get the Project
         try:
             project = Project.objects.get(project_id=project_id)
         except Project.DoesNotExist:
             return Response({"error": f"Project {project_id} not found."},
                             status=status.HTTP_404_NOT_FOUND)
 
-        # 2) Determine the user (authenticate or create guest)
+        # Determine the user (authenticate or create guest)
         if guest_flag:
             user = self._create_guest_user()
         else:
@@ -66,7 +66,7 @@ class ProjectJoinView(APIView):
                 return Response({"error": "Invalid credentials."},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-        # 3) Create a new ProjectInstance for the user
+        # Create a new ProjectInstance for the user
         instance = ProjectInstance.objects.create(
             project=project,
             user=user,
@@ -77,7 +77,7 @@ class ProjectJoinView(APIView):
         template_dir = "field_manager/qgis_templates/ir_general"
         instance_dir = create_project_folder_for_instance(instance, template_dir)
 
-        # 4) Return instance info
+        # Return instance info
         data = {
             "message": "Joined project successfully.",
             "project": {

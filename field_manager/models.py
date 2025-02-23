@@ -16,6 +16,7 @@
 
 from django.db import models
 from django.contrib.gis.db import models as gis_models
+from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -26,7 +27,7 @@ class Project(models.Model):
     by participants to join.
     """
     name = models.CharField(max_length=200)
-    project_id = models.SlugField(unique=True, help_text="Unique ID for participants to join.")
+    project_id = models.SlugField(unique=True, blank=True, help_text="Unique ID for participants to join. Leave empty to let auto-generate.")
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -35,6 +36,25 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.project_id})"
+    
+    def save(self, *args, **kwargs):
+        if not self.project_id:
+            self.project_id = self.generate_project_id()
+        super().save(*args, **kwargs)
+
+    def generate_project_id(self):
+        """
+        Generates a unique 8-character project ID consisting of a truncated slug
+        and a 4-digit counter.
+        """
+        base_slug = slugify(self.name)[:10]
+        counter = 1
+        while True:
+            # Base_slug + 4-digit counter (e.g., "sandymount-001")
+            slug_candidate = f"{base_slug}-{counter:03d}"
+            if not Project.objects.filter(project_id=slug_candidate).exists():
+                return slug_candidate
+            counter += 1
 
 
 class ProjectInstance(models.Model):
@@ -60,13 +80,3 @@ class ProjectInstance(models.Model):
 
     def __str__(self):
         return f"Instance of {self.project} for user {self.user.username}"
-
-
-class TestGeometry(models.Model):
-    point = gis_models.PointField()
-    # photo = models.ImageField(upload_to='photos/', null=True, blank=True)
-    # photo = models.BinaryField(null=True, blank=True)  # Store the photo as binary data
-
-    class Meta:
-        verbose_name_plural = 'Test Geometries'
-        verbose_name = 'Test Geometry' 

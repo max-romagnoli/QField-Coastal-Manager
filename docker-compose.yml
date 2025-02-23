@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  db:
+    image: postgis/postgis:13-3.1
+    environment:
+      POSTGRES_DB: qfield_coastal
+      POSTGRES_USER: qfield_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - qfield_network
+
+  web:
+    build: .
+    command: gunicorn qfield_coastal_manager.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - media_data:/app/media
+      - static_data:/app/static
+    environment:
+      - DJANGO_SUPERUSER_USERNAME
+      - DJANGO_SUPERUSER_EMAIL
+      - DJANGO_SUPERUSER_PASSWORD
+      - DJANGO_SECRET_KEY
+      - DJANGO_DEBUG
+      - DJANGO_SETTINGS_MODULE=qfield_coastal_manager.settings
+      - DATABASE_URL=postgres://qfield_user:${DB_PASSWORD}@db:5432/qfield_coastal
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - qfield_network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_data:/app/static:ro
+      - media_data:/app/media:ro
+    depends_on:
+      - web
+    networks:
+      - qfield_network
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:
+
+networks:
+  qfield_network:

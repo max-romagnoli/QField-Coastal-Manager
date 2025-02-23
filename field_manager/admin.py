@@ -15,10 +15,8 @@
 """
 
 from django.contrib import admin
-from .models import TestGeometry, Project, ProjectInstance
+from .models import Project, ProjectInstance
 from leaflet.admin import LeafletGeoAdmin
 
 admin.site.register(Project)
 admin.site.register(ProjectInstance)
-
-admin.site.register(TestGeometry, LeafletGeoAdmin)
