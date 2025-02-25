@@ -1,0 +1,1 @@
+web: gunicorn qfield_coastal_manager.wsgi
