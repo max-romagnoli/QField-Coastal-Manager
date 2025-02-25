@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'qfield_coastal_manager.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 conn = dj_database_url.config(
-    default=f'postgres://koyeb-adm:{os.environ.get('DB_PASSWORD')}@ep-long-bird-a2slgh7m.eu-central-1.pg.koyeb.app/koyebdb'
+    default=f"postgres://koyeb-adm:{os.environ.get('DB_PASSWORD')}@ep-long-bird-a2slgh7m.eu-central-1.pg.koyeb.app/koyebdb"
 )
 conn['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 DATABASES = {
