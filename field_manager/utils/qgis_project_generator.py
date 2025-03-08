@@ -24,8 +24,9 @@ def create_project_folder_for_instance(instance, template_dir):
 
     qgs_filename = _find_qgis_project_file(instance_dir)
     if qgs_filename:
+        old_qgs_filename = os.path.join(instance_dir, qgs_filename)
         new_qgs_filename = os.path.join(instance_dir, f"{instance.project.name}.qgs")
-        os.rename(qgs_filename, new_qgs_filename)
+        os.rename(old_qgs_filename, new_qgs_filename)
 
     relative_path = os.path.relpath(instance_dir, settings.MEDIA_ROOT)
     instance.qgis_folder_path = relative_path
