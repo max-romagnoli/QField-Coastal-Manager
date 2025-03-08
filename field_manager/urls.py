@@ -21,5 +21,5 @@ urlpatterns = [
     path("projects/", ProjectListView.as_view(), name="project-list"),   
     path("projects/join/", ProjectJoinView.as_view(), name="project-join"),         
     path("projects/upload/", ProjectInstanceUploadView.as_view(), name="project-upload"),
-    path("project-instances/<int:pk>/download/", ProjectInstanceDownloadView.as_view(), name="instance-download"),
+    path("project-instances/<str:instance_slug>/download/", ProjectInstanceDownloadView.as_view(), name="instance-download"),
 ]

@@ -27,12 +27,12 @@ from field_manager.models import ProjectInstance
 
 class ProjectInstanceDownloadView(APIView):
     """
-    GET /field_manager/project-instances/<int:pk>/download/
+    GET /field_manager/project-instances/<str:instance_slug>/download/
     Returns the URL to the .qgz file or (optionally) an actual file response (TODO: to be decided).
     """
     
-    def get(self, request, pk):
-        instance = get_object_or_404(ProjectInstance, pk=pk)
+    def get(self, request, instance_slug):
+        instance = get_object_or_404(ProjectInstance, instance_slug=instance_slug)
 
         if not instance.qgis_folder_path:
             return Response({"error": "No folder assigned"}, status=404)
