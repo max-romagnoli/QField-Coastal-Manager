@@ -15,11 +15,11 @@
 """
 
 from django.urls import path
-from .views import ProjectJoinView, ProjectListView, ProjectUploadView, ProjectInstanceDownloadView
+from .views import ProjectJoinView, ProjectListView, ProjectInstanceUploadView, ProjectInstanceDownloadView
 
 urlpatterns = [
     path("projects/", ProjectListView.as_view(), name="project-list"),   
     path("projects/join/", ProjectJoinView.as_view(), name="project-join"),         
-    path("projects/upload/", ProjectUploadView.as_view(), name="project-upload"),
+    path("projects/upload/", ProjectInstanceUploadView.as_view(), name="project-upload"),
     path("project-instances/<int:pk>/download/", ProjectInstanceDownloadView.as_view(), name="instance-download"),
 ]
