@@ -35,6 +35,10 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ["true", "1", "yes"]
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,experimental-viole-tcd-scss-4c25b09f.koyeb.app,[::1]').split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://experimental-viole-tcd-scss-4c25b09f.koyeb.app"
+]
+
 # Application definition
 
 INSTALLED_APPS = [
