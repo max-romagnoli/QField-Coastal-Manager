@@ -29,6 +29,8 @@ class ProjectInstanceUploadView(APIView):
     """
 
     def post(self, request, *args, **kwargs):
+        print("DEBUG: We reached ProjectInstanceUploadView!")
+        
         # Parse metadata from text part
         meta_data_raw = request.data.get("json_data")
         meta_data = {}
