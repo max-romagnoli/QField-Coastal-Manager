@@ -63,6 +63,8 @@ class ProjectInstanceDownloadView(APIView):
 
         return JsonResponse({
             "qgs_filename": qgs_filename,
+            "instance_slug": instance.instance_slug,
+            "project_slug": instance.project.project_id,
             "zip_data": zip_base64
         }, json_dumps_params={"ensure_ascii": False})
 
