@@ -34,7 +34,7 @@ def create_project_folder_for_instance(instance, template_dir):
     return instance_dir
 
 
-def _find_qgis_project_file(self, folder_path):
+def _find_qgis_project_file(folder_path):
     """
     Helper function to find a .qgz or .qgs file in the given folder.
     """
