@@ -1,0 +1,45 @@
+<!-- data_viewer/templates/data_viewer/base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}QField Coastal Crowds Data Viewer{% endblock %}</title>
+    <!-- Bootstrap 5 from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      .navbar {
+        background-color: #0A1D30 !important;
+        height: 110px;
+      }
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+        margin-bottom: 55px;
+      }
+      .navbar-brand img {
+        object-fit: contain;
+      }
+    </style>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <img src="{% static 'images/logo.png' %}" alt="QField Coastal Crowds Logo" height="55">
+        </a>
+      </div>
+    </nav>
+
+    <div class="container mt-3">
+      {% block content %}{% endblock %}
+    </div>
+
+    {% block scripts %}
+    <!-- Optionally load JavaScript from bootstrap or Leaflet, etc. -->
+    {% endblock %}
+  </body>
+</html>

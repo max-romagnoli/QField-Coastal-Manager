@@ -1,0 +1,56 @@
+{% extends "data_viewer/base.html" %}
+
+{% block title %}All Projects Map{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #map {
+    position: absolute;
+    top: 56px; /* matches your navbar height */
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="map"></div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+  // Initialize Leaflet
+  var map = L.map('map').setView([53.4129, -8.2439], 7);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18
+  }).addTo(map);
+
+  // Add each project as a marker
+  var projects = JSON.parse('{{ projects_json|escapejs }}');
+  // projects_data is a JSON object, e.g. `[{"id":1, "location":{"x":-8.2439,"y":53.4129}, "study_radius_km":10, "name":"..."}, ...]`
+
+  projects.forEach(function(proj) {
+    // NOTE: Django's json_script() will store coordinates in proj.location.x => LON, proj.location.y => LAT
+    // We assume SRID=4326 => (Longitude = x, Latitude = y).
+    var lat = proj.location.lat; 
+    var lon = proj.location.lon; 
+
+    var marker = L.marker([lat, lon]).addTo(map);
+    // Bind a popup with name, study_radius, link to detail page
+    marker.bindPopup(`
+      <b>${proj.name}</b><br>
+      <a href="/viewer/detail/${proj.id}/">View Contributions &raquo;</a>
+    `);
+  });
+</script>
+{% endblock %}

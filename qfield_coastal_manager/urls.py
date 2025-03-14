@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/field_manager/", include("field_manager.urls")),
+    path('viewer/', include('data_viewer.urls', namespace='viewer')),
 ]
 
 if settings.DEBUG:

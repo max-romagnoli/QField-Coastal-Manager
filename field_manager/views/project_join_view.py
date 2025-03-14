@@ -74,7 +74,7 @@ class ProjectJoinView(APIView):
         )
 
         # template_dir = "field_manager/"      # TODO: Can have many more templates
-        template_dir = "field_manager/qgis_templates/ir_general"
+        template_dir = "field_manager/qgis_templates/portrane"
         instance_dir = create_project_folder_for_instance(instance, template_dir)
 
         # Return instance info

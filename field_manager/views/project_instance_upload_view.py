@@ -100,3 +100,4 @@ class ProjectInstanceUploadView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
+ 

@@ -1,0 +1,50 @@
+<!-- data_viewer/templates/data_viewer/map.html -->
+{% extends "data_viewer/base.html" %}
+
+{% block title %}Map View{% endblock %}
+
+{% block head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #map {
+    position: absolute;
+    top: 56px; /* Adjust to match navbar height */
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="map"></div>
+
+<!-- Example: List of Instances -->
+{% comment %} <ul>
+{% for inst in instances %}
+  <li>{{ inst.instance_slug }} - Project: {{ inst.project.name }} ({{ inst.qgis_folder_path }})</li>
+{% endfor %}
+</ul> {% endcomment %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+  // Basic Leaflet init
+  var map = L.map('map').setView([53.4129, -8.2439], 7);  // center on London, for example
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+</script>
+{% endblock %}

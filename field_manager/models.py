@@ -30,6 +30,9 @@ class Project(models.Model):
     project_id = models.SlugField(unique=True, blank=True, help_text="Unique ID for participants to join. Leave empty to let auto-generate.")
     created_at = models.DateTimeField(default=timezone.now)
 
+    location = gis_models.PointField(null=True, blank=True, srid=4326, help_text="Approximate center location of this project.")
+
+
     class Meta:
         verbose_name_plural = 'Projects'
         verbose_name = 'Project' 
