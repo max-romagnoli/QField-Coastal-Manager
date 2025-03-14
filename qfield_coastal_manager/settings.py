@@ -31,8 +31,8 @@ if not SECRET_KEY:
     raise Exception("DJANGO_SECRET_KEY environment variable is not set!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ["true", "1", "yes"]
-DEBUG = "True"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ["true", "1", "yes"]
+# DEBUG = "True"
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,experimental-viole-tcd-scss-4c25b09f.koyeb.app,[::1]').split(',')
 
@@ -91,12 +91,12 @@ WSGI_APPLICATION = 'qfield_coastal_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# conn = dj_database_url.config(
-#   default=f"postgres://koyeb-adm:{os.environ.get('DB_PASSWORD')}@ep-long-bird-a2slgh7m.eu-central-1.pg.koyeb.app/koyebdb"
-# )
 conn = dj_database_url.config(
-    default=os.environ.get('DATABASE_URL', 'postgres://qfield_user:password@db:5432/qfield_coastal')
+  default=f"postgres://koyeb-adm:{os.environ.get('DB_PASSWORD')}@ep-long-bird-a2slgh7m.eu-central-1.pg.koyeb.app/koyebdb"
 )
+# conn = dj_database_url.config(
+#     default=os.environ.get('DATABASE_URL', 'postgres://qfield_user:password@db:5432/qfield_coastal')
+# )
 conn['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 DATABASES = {
     'default': conn
