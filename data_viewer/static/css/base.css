@@ -1,0 +1,16 @@
+.navbar {
+    background-color: #0A1D30 !important;
+    height: 110px;
+  }
+  
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 55px;
+}
+
+.navbar-brand img {
+  object-fit: contain;
+}  

@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import json
+import subprocess
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -77,6 +78,13 @@ class ProjectInstanceUploadView(APIView):
             shutil.rmtree(tmp_dir)
             return Response({"error": f"Failed to unpack zip: {e}"},
                             status=status.HTTP_400_BAD_REQUEST)
+
+        # Convert layers to GeoJSON for data_viewer
+        geojson_output = os.path.join(project_folder_abs, 'collection', 'layers.geojson')
+        gpkg_files = [f for f in os.listdir(os.path.join(project_folder_abs, 'collection')) if f.endswith('.gpkg')]
+        if gpkg_files:
+            gpkg_path = os.path.join(project_folder_abs, 'collection', gpkg_files[0])
+            subprocess.run(["ogr2ogr", "-f", "GeoJSON", geojson_output, gpkg_path], check=True)
 
         # Cleanup temp directory
         shutil.rmtree(tmp_dir)

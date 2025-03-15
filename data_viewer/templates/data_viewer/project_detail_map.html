@@ -1,0 +1,46 @@
+{% load static %}
+{% extends "data_viewer/base.html" %}
+
+{% block title %}{{ project.name }} - Contributions{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<link rel="stylesheet" href="{% static 'css/project_detail_map.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="detailMap"></div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+var map = L.map('detailMap').setView([53.4129, -8.2439], 9);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+var instances = JSON.parse('{{ instances_json|escapejs }}');
+
+instances.forEach(instance => {
+  fetch(`/media/${instance.folder_path}/collection/layers.geojson`)
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error("No layers.geojson found");
+      }
+      return resp.json();
+    })
+    .then(geojson => {
+      L.geoJSON(geojson, {
+        onEachFeature: (feature, layer) => {
+          layer.bindPopup(`Collected by: <b>${instance.username}</b><br>`);
+        }
+      }).addTo(map);
+    })
+    .catch(error => console.warn("Couldn't load data for instance", instance.slug, error));
+});
+</script>
+{% endblock %}
