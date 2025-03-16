@@ -15,8 +15,9 @@
 """
 
 from django.contrib import admin
-from .models import Project, ProjectInstance
+from .models import Project, ProjectInstance, ProjectInstanceUploadRecord
 from leaflet.admin import LeafletGeoAdmin
 
 admin.site.register(Project)
 admin.site.register(ProjectInstance)
+admin.site.register(ProjectInstanceUploadRecord)

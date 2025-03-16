@@ -83,3 +83,17 @@ class ProjectInstance(models.Model):
 
     def __str__(self):
         return f"Instance of {self.project} for user {self.user.username}"
+    
+
+class ProjectInstanceUploadRecord(models.Model):
+    project_instance = models.ForeignKey('ProjectInstance', on_delete=models.CASCADE, related_name='uploads')
+    uploaded_at = models.DateTimeField(default=timezone.now)
+    upload_folder = models.CharField(max_length=500, help_text="Path relative to MEDIA_ROOT where the upload is stored.")
+
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name_plural = 'Project Instances Upload Records'
+        verbose_name = 'Project Instance Upload Record' 
+
+    def __str__(self):
+        return f"Upload of {self.project_instance} at {self.uploaded_at}"

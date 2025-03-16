@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import json
 import subprocess
+import datetime
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -12,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from field_manager.models import ProjectInstance
+from field_manager.models import ProjectInstance, ProjectInstanceUploadRecord
 
 class ProjectInstanceUploadView(APIView):
     """
@@ -80,11 +81,34 @@ class ProjectInstanceUploadView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Convert layers to GeoJSON for data_viewer
-        geojson_output = os.path.join(project_folder_abs, 'collection', 'layers.geojson')
+        # geojson_output = os.path.join(project_folder_abs, 'collection', 'layers.geojson')
+        # gpkg_files = [f for f in os.listdir(os.path.join(project_folder_abs, 'collection')) if f.endswith('.gpkg')]
+        # if gpkg_files:
+        #     gpkg_path = os.path.join(project_folder_abs, 'collection', gpkg_files[0])
+        #     subprocess.run(["ogr2ogr", "-f", "GeoJSON", geojson_output, gpkg_path], check=True)
+
+        upload_timestamp = datetime.timezone.now().strftime('%Y%m%d_%H%M%S')
+        upload_folder_rel = os.path.join('uploads', f"{upload_timestamp}-{instance_slug}")
+        upload_folder_abs = os.path.join(settings.MEDIA_ROOT, upload_folder_rel)
+
+        # Create subfolders
+        layers_folder = os.path.join(upload_folder_abs, 'layers')
+        files_folder = os.path.join(upload_folder_abs, 'files')
+        os.makedirs(layers_folder, exist_ok=True)
+        os.makedirs(files_folder, exist_ok=True)
+
+        # Convert layers to GeoJSON in the layers_folder
         gpkg_files = [f for f in os.listdir(os.path.join(project_folder_abs, 'collection')) if f.endswith('.gpkg')]
         if gpkg_files:
             gpkg_path = os.path.join(project_folder_abs, 'collection', gpkg_files[0])
+            geojson_output = os.path.join(layers_folder, 'layers.geojson')
             subprocess.run(["ogr2ogr", "-f", "GeoJSON", geojson_output, gpkg_path], check=True)
+
+        # Record this upload in the DB
+        ProjectInstanceUploadRecord.objects.create(
+            project_instance=instance,
+            upload_folder=upload_folder_rel
+        )
 
         # Cleanup temp directory
         shutil.rmtree(tmp_dir)

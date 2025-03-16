@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from field_manager.models import Project, ProjectInstance
+from field_manager.models import Project, ProjectInstanceUploadRecord, ProjectInstance
 import json
 
 class ProjectDetailMapView(View):
@@ -10,15 +10,17 @@ class ProjectDetailMapView(View):
     def get(self, request, project_id):
         project = get_object_or_404(Project, project_id=project_id)
 
-        instances = ProjectInstance.objects.filter(project=project).exclude(qgis_folder_path__isnull=True)
+        instances = ProjectInstance.objects.filter(project=project)
 
         instance_info = []
         for instance in instances:
-            instance_info.append({
-                "slug": instance.instance_slug,
-                "folder_path": instance.qgis_folder_path,
-                "username": instance.user.username
-            })
+            latest_upload = instance.uploads.order_by('-uploaded_at').first()
+            if latest_upload:
+                instance_info.append({
+                    "slug": instance.instance_slug,
+                    "folder_path": latest_upload.upload_folder,
+                    "username": instance.user.username
+                })
 
         context = {
             "project": project,

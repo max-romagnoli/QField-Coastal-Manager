@@ -1,5 +1,5 @@
-{% load static %}
 {% extends "data_viewer/base.html" %}
+{% load static %}
 
 {% block title %}{{ project.name }} - Contributions{% endblock %}
 
@@ -26,7 +26,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 var instances = JSON.parse('{{ instances_json|escapejs }}');
 
 instances.forEach(instance => {
-  fetch(`/media/${instance.folder_path}/collection/layers.geojson`)
+  fetch(`/media/${instance.folder_path}/layers/layers.geojson`)  // Notice the updated path
     .then(resp => {
       if (!resp.ok) {
         throw new Error("No layers.geojson found");

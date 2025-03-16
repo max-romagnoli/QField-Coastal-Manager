@@ -28,7 +28,7 @@ class ProjectsMapView(TemplateView):
         projects = Project.objects.exclude(location__isnull=True)
         context["projects_json"] = json.dumps([
             {
-                "id": project.id,
+                "project_id": project.project_id,
                 "name": project.name,
                 "location": {"lat": project.location.y, "lon": project.location.x},
             }
