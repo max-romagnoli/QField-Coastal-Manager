@@ -18,7 +18,10 @@ from django.contrib import admin
 from .models import Project, ProjectInstance, ProjectInstanceUploadRecord, ProjectInstanceGeoJSONLayer
 from leaflet.admin import LeafletGeoAdmin
 
-admin.site.register(Project)
+class ProjectInstanceGeoJSONLayerAdmin(LeafletGeoAdmin):
+    list_display = ["layer_name", "upload_record",]
+
+admin.site.register(Project, LeafletGeoAdmin)
 admin.site.register(ProjectInstance)
 admin.site.register(ProjectInstanceUploadRecord)
-admin.site.register(ProjectInstanceGeoJSONLayer)
+admin.site.register(ProjectInstanceGeoJSONLayer, ProjectInstanceGeoJSONLayerAdmin)
