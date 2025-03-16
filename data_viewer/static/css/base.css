@@ -1,16 +1,44 @@
 .navbar {
-    background-color: #0A1D30 !important;
-    height: 110px;
-  }
-  
+  background-color: #0A1D30 !important;
+  height: 110px;
+}
+
+.navbar .container-fluid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+}
+
 .navbar-brand {
   display: flex;
   align-items: center;
-  width: 100%;
   padding: 0;
   margin-bottom: 55px;
 }
 
 .navbar-brand img {
   object-fit: contain;
-}  
+}
+
+.navbar-middle {
+  justify-self: center; 
+  text-align: center;
+}
+
+.navbar-middle h1 {
+  font-size: 20px;
+  margin-bottom: 55px;
+}
+
+.navbar-right {
+  justify-self: end;
+  text-align: right;
+  margin-bottom: 55px;
+  margin-right: 15px;
+}
+
+.navbar-text {
+  color: #E0B0FF;
+  font-weight: bold;
+  letter-spacing: 2px;
+}

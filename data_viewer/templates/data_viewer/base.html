@@ -14,6 +14,15 @@
         <a class="navbar-brand" href="/viewer/">
           <img src="{% static 'images/logo.png' %}" alt="QField Coastal Crowds Logo" height="55">
         </a>
+
+        <div class="navbar-middle">
+          {% block nav_center %}
+          {% endblock %}
+        </div>
+
+        <div class="navbar-right">
+          <span class="navbar-text">{% block view_mode %}DATA VIEWER{% endblock %}</span>
+        </div>
       </div>
     </nav>
 
@@ -21,7 +30,6 @@
       {% block content %}{% endblock %}
     </div>
 
-    {% block scripts %}
-    {% endblock %}
+    {% block scripts %}{% endblock %}
   </body>
 </html>

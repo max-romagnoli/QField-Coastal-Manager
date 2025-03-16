@@ -3,6 +3,10 @@
 
 {% block title %}{{ project.name }} - Contributions{% endblock %}
 
+{% block nav_center %}
+<h1 class="text-white">{{ project.name }}</h1>
+{% endblock %}
+
 {% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
 <link rel="stylesheet" href="{% static 'css/project_detail_map.css' %}">
