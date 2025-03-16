@@ -20,6 +20,6 @@ from .views import MapView, ProjectsMapView, ProjectDetailMapView
 app_name = 'data_viewer'
 
 urlpatterns = [
-    path('map/', ProjectsMapView.as_view(), name='projects-map-view'),
+    path('', ProjectsMapView.as_view(), name='projects-map-view'),
     path('detail/<str:project_id>/', ProjectDetailMapView.as_view(), name='project-detail-map'),
 ]

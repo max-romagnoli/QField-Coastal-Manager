@@ -34,8 +34,10 @@
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script>
 var map = L.map('detailMap').setView([53.4129, -8.2439], 9);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
-var instances = JSON.parse('{{ instances_json|escapejs }}');
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19,
+  attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+}).addTo(map);var instances = JSON.parse('{{ instances_json|escapejs }}');
 var overlayGroups = {};
 var colorMapping = {};
 var colors = ["red", "green", "blue", "orange", "purple", "brown", "magenta", "cyan"];
