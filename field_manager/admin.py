@@ -15,9 +15,10 @@
 """
 
 from django.contrib import admin
-from .models import Project, ProjectInstance, ProjectInstanceUploadRecord
+from .models import Project, ProjectInstance, ProjectInstanceUploadRecord, ProjectInstanceGeoJSONLayer
 from leaflet.admin import LeafletGeoAdmin
 
 admin.site.register(Project)
 admin.site.register(ProjectInstance)
 admin.site.register(ProjectInstanceUploadRecord)
+admin.site.register(ProjectInstanceGeoJSONLayer)

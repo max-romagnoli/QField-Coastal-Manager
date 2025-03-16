@@ -6,6 +6,23 @@
 {% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
 <link rel="stylesheet" href="{% static 'css/project_detail_map.css' %}">
+<style>
+.custom-legend {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  line-height: 1.5;
+  font-size: 14px;
+}
+.custom-legend label {
+  display: block;
+  margin-bottom: 4px;
+}
+.custom-legend input {
+  margin-right: 5px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -17,30 +34,98 @@
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script>
 var map = L.map('detailMap').setView([53.4129, -8.2439], 9);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
 var instances = JSON.parse('{{ instances_json|escapejs }}');
-
-instances.forEach(instance => {
-  fetch(`/media/${instance.folder_path}/layers/layers.geojson`)  // Notice the updated path
-    .then(resp => {
-      if (!resp.ok) {
-        throw new Error("No layers.geojson found");
-      }
-      return resp.json();
-    })
-    .then(geojson => {
-      L.geoJSON(geojson, {
-        onEachFeature: (feature, layer) => {
-          layer.bindPopup(`Collected by: <b>${instance.username}</b><br>`);
+var overlayGroups = {};
+var colorMapping = {};
+var colors = ["red", "green", "blue", "orange", "purple", "brown", "magenta", "cyan"];
+var colorIndex = 0;
+function getColorForLayerName(layerName) {
+  if (!colorMapping[layerName]) {
+    colorMapping[layerName] = colors[colorIndex % colors.length];
+    colorIndex++;
+  }
+  return colorMapping[layerName];
+}
+function getOrCreateGroup(layerName) {
+  if (!overlayGroups[layerName]) {
+    overlayGroups[layerName] = L.layerGroup();
+  }
+  return overlayGroups[layerName];
+}
+instances.forEach(function(instance) {
+  instance.geojson_layers.forEach(function(layerObj) {
+    var layerName = layerObj.layer_name;
+    var geojson = layerObj.geojson_data;
+    var layer = L.geoJSON(geojson, {
+      pointToLayer: function(feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 8,
+          fillColor: getColorForLayerName(layerName),
+          color: getColorForLayerName(layerName),
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        });
+      },
+      style: function(feature) {
+        return { color: getColorForLayerName(layerName) };
+      },
+      onEachFeature: function(feature, lyr) {
+        var popup = "Collected by: " + instance.username;
+        if (feature.properties) {
+          for (var k in feature.properties) {
+            if (k !== "picture") {
+              popup += "<br>" + k + ": " + feature.properties[k];
+            } else {
+              popup += "<br><img src='/media/" + instance.slug + "/" + feature.properties[k] + "' style='max-width:150px;'/>";
+            }
+          }
         }
-      }).addTo(map);
-    })
-    .catch(error => console.warn("Couldn't load data for instance", instance.slug, error));
+        lyr.bindPopup(popup);
+      }
+    });
+    var group = getOrCreateGroup(layerName);
+    group.addLayer(layer);
+  });
 });
+for (var layerName in overlayGroups) {
+  overlayGroups[layerName].addTo(map);
+}
+var customLegend = L.control({ position: 'topright' });
+customLegend.onAdd = function(map) {
+  var div = L.DomUtil.create('div', 'custom-legend');
+  div.innerHTML = "<strong>Layers</strong><br>";
+  for (var layerName in overlayGroups) {
+    var color = getColorForLayerName(layerName);
+    div.innerHTML += '<label><input type="checkbox" data-layer="' + layerName + '" checked> <span style="display:inline-block;width:12px;height:12px;background:' + color + ';margin-right:5px;"></span>' + layerName + '</label>';
+  }
+  return div;
+};
+customLegend.addTo(map);
+var legendInputs = document.querySelectorAll('.custom-legend input[type=checkbox]');
+legendInputs.forEach(function(input) {
+  input.addEventListener('change', function() {
+    var layerName = this.getAttribute('data-layer');
+    if (this.checked) {
+      overlayGroups[layerName].addTo(map);
+    } else {
+      map.removeLayer(overlayGroups[layerName]);
+    }
+  });
+});
+var overallBounds = L.latLngBounds([]);
+for (var layerName in overlayGroups) {
+  overlayGroups[layerName].eachLayer(function(layer) {
+    if (layer.getBounds) {
+      overallBounds.extend(layer.getBounds());
+    } else if (layer.getLatLng) {
+      overallBounds.extend(layer.getLatLng());
+    }
+  });
+}
+if (overallBounds.isValid()) {
+  map.fitBounds(overallBounds);
+}
 </script>
 {% endblock %}

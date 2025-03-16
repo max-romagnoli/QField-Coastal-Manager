@@ -86,14 +86,29 @@ class ProjectInstance(models.Model):
     
 
 class ProjectInstanceUploadRecord(models.Model):
-    project_instance = models.ForeignKey('ProjectInstance', on_delete=models.CASCADE, related_name='uploads')
+    project_instance = models.ForeignKey(ProjectInstance, on_delete=models.CASCADE, related_name='uploads')
     uploaded_at = models.DateTimeField(default=timezone.now)
-    upload_folder = models.CharField(max_length=500, help_text="Path relative to MEDIA_ROOT where the upload is stored.")
+    upload_folder = models.CharField(max_length=500)
 
     class Meta:
         ordering = ['-uploaded_at']
         verbose_name_plural = 'Project Instances Upload Records'
-        verbose_name = 'Project Instance Upload Record' 
+        verbose_name = 'Project Instance Upload Record'
 
     def __str__(self):
-        return f"Upload of {self.project_instance} at {self.uploaded_at}"
+        return f"{self.project_instance.instance_slug} - {self.uploaded_at}"
+
+
+class ProjectInstanceGeoJSONLayer(models.Model):
+    upload_record = models.ForeignKey(ProjectInstanceUploadRecord, on_delete=models.CASCADE, related_name='geojson_layers')
+    layer_name = models.CharField(max_length=255)
+    geojson_data = models.JSONField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name_plural = 'Project Instances GeoJSON Layers'
+        verbose_name = 'Project Instance GeoJSON Layer'
+
+    def __str__(self):
+        return self.layer_name
