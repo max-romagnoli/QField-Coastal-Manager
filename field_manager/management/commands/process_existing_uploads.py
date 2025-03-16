@@ -2,6 +2,7 @@ import os
 import subprocess
 import tempfile
 import json
+import shutil
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -41,6 +42,9 @@ class Command(BaseCommand):
             files_folder = os.path.join(upload_folder_abs, 'files')
             os.makedirs(layers_folder, exist_ok=True)
             os.makedirs(files_folder, exist_ok=True)
+            source_files_folder = os.path.join(instance_path, 'files')
+            if os.path.exists(source_files_folder):
+                shutil.copytree(source_files_folder, files_folder, dirs_exist_ok=True)
             upload_record = ProjectInstanceUploadRecord.objects.create(
                 project_instance=instance,
                 upload_folder=upload_folder_rel

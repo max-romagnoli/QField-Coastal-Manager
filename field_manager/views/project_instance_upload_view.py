@@ -60,6 +60,9 @@ class ProjectInstanceUploadView(APIView):
             files_folder = os.path.join(upload_folder_abs, 'files')
             os.makedirs(layers_folder, exist_ok=True)
             os.makedirs(files_folder, exist_ok=True)
+            source_files_folder = os.path.join(project_folder_abs, 'files')
+            if os.path.exists(source_files_folder):
+                shutil.copytree(source_files_folder, files_folder, dirs_exist_ok=True)
             collection_path = os.path.join(project_folder_abs, 'collection')
             gpkg_files = [f for f in os.listdir(collection_path) if f.endswith('.gpkg')]
             upload_record = ProjectInstanceUploadRecord.objects.create(

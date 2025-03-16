@@ -77,10 +77,13 @@ instances.forEach(function(instance) {
         var popup = "Collected by: " + instance.username;
         if (feature.properties) {
           for (var k in feature.properties) {
-            if (k !== "picture") {
-              popup += "<br>" + k + ": " + feature.properties[k];
+            var val = feature.properties[k];
+            if (val === null || val === undefined) continue;
+            if (typeof val === "string" && val.toLowerCase() === "none") continue;
+            if (/^picture(_\d+)?$/i.test(k)) {
+              popup += "<br><img src='/media/" + instance.upload_folder + "/" + val + "' style='max-width:150px;'/>";
             } else {
-              popup += "<br><img src='/media/" + instance.slug + "/" + feature.properties[k] + "' style='max-width:150px;'/>";
+              popup += "<strong><br>" + k + "</strong>: " + val;
             }
           }
         }

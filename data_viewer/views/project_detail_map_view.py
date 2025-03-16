@@ -23,7 +23,8 @@ class ProjectDetailMapView(View):
                 instance_info.append({
                     "slug": instance.instance_slug,
                     "username": instance.user.username,
-                    "geojson_layers": geojson_list
+                    "geojson_layers": geojson_list,
+                    "upload_folder": latest_upload.upload_folder,
                 })
         context = {
             "project": project,
