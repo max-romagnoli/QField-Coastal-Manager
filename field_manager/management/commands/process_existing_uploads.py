@@ -53,18 +53,24 @@ class Command(BaseCommand):
                 gpkg_path = os.path.join(collection_folder, gpkg_filename)
                 with tempfile.TemporaryDirectory() as tmp_dir:
                     tmp_geojson = os.path.join(tmp_dir, f"{gpkg_filename}.geojson")
-                    layers_output = subprocess.check_output([
-                        "ogrinfo",
-                        gpkg_path
-                    ], encoding='utf-8')
+                try:
+                    layers_output = subprocess.check_output(["ogrinfo", gpkg_path], encoding="utf-8")
+                except subprocess.CalledProcessError as e:
+                    self.stdout.write(self.style.ERROR(f"Failed to read layers in {gpkg_filename}: {e}"))
+                    continue
 
-                    layer_names = [
-                        line.strip().split(' ')[1]
-                        for line in layers_output.splitlines()
-                        if line.strip().startswith('1:') or line.strip().startswith('2:')  # assuming layer listing lines
-                    ]
+                layer_names = [
+                    line.strip().split(' ')[1]
+                    for line in layers_output.splitlines()
+                    if line.strip().startswith('1:') or line.strip().startswith('2:') 
+                ]
+                if not layer_names:
+                    self.stdout.write(self.style.WARNING(f"No layers found in {gpkg_filename}"))
+                    continue
 
-                    for layer_name in layer_names:
+                for layer_name in layer_names:
+                    self.stdout.write(f"  ↳ Converting layer: {layer_name}")
+                    try:
                         tmp_geojson = os.path.join(tmp_dir, f"{layer_name}.geojson")
                         subprocess.run([
                             "ogr2ogr",
@@ -83,5 +89,10 @@ class Command(BaseCommand):
                             layer_name=layer_name,
                             geojson_data=parsed_data
                         )
+                        self.stdout.write(self.style.SUCCESS(f"    ✅ Saved layer: {layer_name}"))
+                    except subprocess.CalledProcessError as e:
+                        self.stdout.write(self.style.ERROR(f"    ❌ Failed to convert layer {layer_name}: {e}"))
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"    ❌ Error processing layer {layer_name}: {e}"))
             self.stdout.write(f"Processed {instance_slug} successfully.")
         self.stdout.write(self.style.SUCCESS("All existing uploads processed."))

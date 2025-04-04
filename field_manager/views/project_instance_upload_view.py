@@ -72,36 +72,47 @@ class ProjectInstanceUploadView(APIView):
             for gpkg_filename in gpkg_files:
                 gpkg_path = os.path.join(collection_path, gpkg_filename)
                 temp_geojson = os.path.join(tmp_dir, f"{gpkg_filename}.geojson")
-                layers_output = subprocess.check_output([
-                    "ogrinfo",
-                    gpkg_path
-                ], encoding='utf-8')
+                try:
+                    layers_output = subprocess.check_output(["ogrinfo", gpkg_path], encoding="utf-8")
+                except subprocess.CalledProcessError as e:
+                    self.stdout.write(self.style.ERROR(f"Failed to read layers in {gpkg_filename}: {e}"))
+                    continue
 
                 layer_names = [
                     line.strip().split(' ')[1]
                     for line in layers_output.splitlines()
                     if line.strip().startswith('1:') or line.strip().startswith('2:') 
                 ]
+                if not layer_names:
+                    self.stdout.write(self.style.WARNING(f"No layers found in {gpkg_filename}"))
+                    continue
 
                 for layer_name in layer_names:
-                    temp_geojson = os.path.join(tmp_dir, f"{layer_name}.geojson")
-                    subprocess.run([
-                        "ogr2ogr",
-                        "-f", "GeoJSON",
-                        "-t_srs", "EPSG:4326",
-                        "-nln", layer_name,
-                        temp_geojson,
-                        gpkg_path,
-                        layer_name
-                    ], check=True)
-                    with open(temp_geojson, "r", encoding="utf-8") as f:
-                        raw_data = f.read()
-                    parsed_data = json.loads(raw_data)
-                    ProjectInstanceGeoJSONLayer.objects.create(
-                        upload_record=upload_record,
-                        layer_name=layer_name,
-                        geojson_data=parsed_data
-                    )
+                    self.stdout.write(f"  ↳ Converting layer: {layer_name}")
+                    try:
+                        temp_geojson = os.path.join(tmp_dir, f"{layer_name}.geojson")
+                        subprocess.run([
+                            "ogr2ogr",
+                            "-f", "GeoJSON",
+                            "-t_srs", "EPSG:4326",
+                            "-nln", layer_name,
+                            temp_geojson,
+                            gpkg_path,
+                            layer_name
+                        ], check=True)
+                        with open(temp_geojson, "r", encoding="utf-8") as f:
+                            raw_data = f.read()
+                        parsed_data = json.loads(raw_data)
+                        ProjectInstanceGeoJSONLayer.objects.create(
+                            upload_record=upload_record,
+                            layer_name=layer_name,
+                            geojson_data=parsed_data
+                        )
+                        self.stdout.write(self.style.SUCCESS(f"    ✅ Saved layer: {layer_name}"))
+                    except subprocess.CalledProcessError as e:
+                        self.stdout.write(self.style.ERROR(f"    ❌ Failed to convert layer {layer_name}: {e}"))
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"    ❌ Error processing layer {layer_name}: {e}"))
             instance.qgis_folder_path = project_folder_rel
             instance.save()
             return Response({
