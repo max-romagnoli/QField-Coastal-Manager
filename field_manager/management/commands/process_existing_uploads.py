@@ -53,20 +53,35 @@ class Command(BaseCommand):
                 gpkg_path = os.path.join(collection_folder, gpkg_filename)
                 with tempfile.TemporaryDirectory() as tmp_dir:
                     tmp_geojson = os.path.join(tmp_dir, f"{gpkg_filename}.geojson")
-                    subprocess.run([
-                        "ogr2ogr",
-                        "-f", "GeoJSON",
-                        "-t_srs", "EPSG:4326",
-                        tmp_geojson,
+                    layers_output = subprocess.check_output([
+                        "ogrinfo",
                         gpkg_path
-                    ], check=True)
-                    with open(tmp_geojson, "r", encoding="utf-8") as f:
-                        raw_data = f.read()
-                    parsed_data = json.loads(raw_data)
-                    ProjectInstanceGeoJSONLayer.objects.create(
-                        upload_record=upload_record,
-                        layer_name=gpkg_filename,
-                        geojson_data=parsed_data
-                    )
+                    ], encoding='utf-8')
+
+                    layer_names = [
+                        line.strip().split(' ')[1]
+                        for line in layers_output.splitlines()
+                        if line.strip().startswith('1:') or line.strip().startswith('2:')  # assuming layer listing lines
+                    ]
+
+                    for layer_name in layer_names:
+                        tmp_geojson = os.path.join(tmp_dir, f"{layer_name}.geojson")
+                        subprocess.run([
+                            "ogr2ogr",
+                            "-f", "GeoJSON",
+                            "-t_srs", "EPSG:4326",
+                            "-nln", layer_name,
+                            tmp_geojson,
+                            gpkg_path,
+                            layer_name
+                        ], check=True)
+                        with open(tmp_geojson, "r", encoding="utf-8") as f:
+                            raw_data = f.read()
+                        parsed_data = json.loads(raw_data)
+                        ProjectInstanceGeoJSONLayer.objects.create(
+                            upload_record=upload_record,
+                            layer_name=layer_name,
+                            geojson_data=parsed_data
+                        )
             self.stdout.write(f"Processed {instance_slug} successfully.")
         self.stdout.write(self.style.SUCCESS("All existing uploads processed."))
